@@ -1,0 +1,18 @@
+[package]
+name = "postgresql-named-parameters-derive"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+proc-macro2 = "1.0.75"
+quote = "1.0.35"
+syn = { version = "2.0.48", features = ["extra-traits"] }
+procout = "0.1.13"
+
+[dev-dependencies]
+macrotest = "1.0.9"
+
+[lib]
+proc-macro = true

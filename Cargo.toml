@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "postgresql-named-parameters",
+    "postgresql-named-parameters-derive",
+    "postgresql-named-parameters-tests",
+]
+resolver = "2"
