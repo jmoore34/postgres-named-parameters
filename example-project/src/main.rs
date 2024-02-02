@@ -5,7 +5,7 @@ use postgresql_named_parameters::{Query, Statement};
 struct Person {
     first_name: String,
     last_name: String,
-    age: i32,
+    hobby: Option<String>,
     alive: bool,
 }
 
@@ -20,38 +20,76 @@ struct GetPeople<'a> {
 }
 
 #[derive(Statement)]
-#[statement(sql = "INSERT INTO Person VALUES @people")]
+#[statement(sql = "
+CREATE TABLE IF NOT EXISTS Person (
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  hobby TEXT,
+  alive BOOLEAN NOT NULL
+)")]
+struct SetupPerson;
+
+#[derive(Statement)]
+#[statement(sql = "DELETE FROM Person")]
+struct TruncatePerson;
+
+#[derive(Statement)]
+#[statement(sql = "
+    INSERT INTO Person (first_name, last_name, hobby, alive)
+    SELECT *
+    FROM UNNEST(@first_names::TEXT[], @last_names::TEXT[], @hobbies::TEXT[], @alive_statuses::BOOL[])
+")]
 struct InsertPeople {
-    people: Vec<Person>,
+    first_names: Vec<String>,
+    last_names: Vec<String>,
+    hobbies: Vec<Option<String>>,
+    alive_statuses: Vec<bool>,
 }
 
 fn main() {
-    let mut client =
-        postgres::Client::connect("host=localhost user=postgres", postgres::NoTls).unwrap();
+    let connection_string = std::env::var("POSTGRES_CONNECTION_STRING")
+        .unwrap_or("host=localhost user=postgres".to_owned());
+    let mut client = postgres::Client::connect(&connection_string, postgres::NoTls).unwrap();
+
+    SetupPerson {}.execute_statement(&mut client).unwrap();
+    TruncatePerson {}.execute_statement(&mut client).unwrap();
 
     let people_to_insert = vec![
         Person {
             first_name: "John".into(),
             last_name: "Doe".into(),
-            age: 22,
+            hobby: None,
             alive: true,
         },
         Person {
             first_name: "Long".into(),
             last_name: "Da".into(),
-            age: 22,
+            hobby: Some("Cello".into()),
             alive: true,
         },
     ];
 
-    InsertPeople { people: people_to_insert }
-        .execute(&mut client)
-        .unwrap();
+    InsertPeople {
+        first_names: people_to_insert
+            .iter()
+            .map(|p| p.first_name.clone())
+            .collect(),
+        last_names: people_to_insert
+            .iter()
+            .map(|p| p.last_name.clone())
+            .collect(),
+        hobbies: people_to_insert.iter().map(|p| p.hobby.clone()).collect(),
+        alive_statuses: people_to_insert.iter().map(|p| p.alive).collect(),
+    }
+    .execute_statement(&mut client)
+    .unwrap();
 
     let people = GetPeople {
         alive: true,
-        name: "John".into()
-    }.query_all(&mut client).unwrap();
+        name: "John".into(),
+    }
+    .query_all(&mut client)
+    .unwrap();
 
     println!("Found: {:?}", people);
 }
