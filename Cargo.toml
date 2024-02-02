@@ -2,6 +2,6 @@
 members = [
     "postgresql-named-parameters",
     "postgresql-named-parameters-derive",
-    "postgresql-named-parameters-tests",
+    "example-project",
 ]
 resolver = "2"

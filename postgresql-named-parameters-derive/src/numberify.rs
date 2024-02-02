@@ -29,8 +29,9 @@ pub fn numberify(query: String, parameters: Vec<String>) -> Result<String, Strin
                                 output.push_str(&format!("${}", sql_index));
                             },
                             None => return Err(format!(
-                                "Could not find a field in the struct with the name '{}'",
-                                field_name
+                                r#"The provided SQL contains "@{}", but there is no matching field in the struct with the name "{}""#,
+                                field_name,
+                                field_name,
                             ))
                         }
                     }

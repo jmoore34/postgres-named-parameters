@@ -1,5 +1,5 @@
 [package]
-name = "postgresql-named-parameters-tests"
+name = "example-project"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,5 +7,7 @@ edition = "2021"
 
 [dependencies]
 postgresql-named-parameters = { path = "../postgresql-named-parameters" }
+postgres-from-row = "0.5.2"
+postgres-types = { version = "0.2.6", features = ["derive"] }
 postgres = "0.19.7"
 macrotest = "1.0.9"

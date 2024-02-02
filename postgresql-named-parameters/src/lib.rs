@@ -1,40 +1,26 @@
+pub mod internal;
+
 pub use postgres;
-pub use postgres_from_row;
 pub use postgresql_named_parameters_derive::*;
-pub use tokio_postgres;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-pub trait Query {
-    fn sql() -> &'static str;
-    fn parameter_names() -> &'static str;
+pub trait Statement {
     fn execute(&self, connection: &mut postgres::Client) -> Result<u64, postgres::error::Error>;
 }
 
-pub struct MyQuery {}
-
-use postgres_from_row::FromRow;
-pub trait QueryAll {
+pub trait Query {
     type Row: postgres_from_row::FromRow;
     fn query_all(
         &self,
-        connection: &mut postgres::Client,
-    ) -> Result<Vec<Self::Row>, postgres::error::Error> {
-        connection
-            .query("query", &[])
-            .and_then(|rows| rows.iter().map(Self::Row::try_from_row).collect())
-    }
-    fn query_all_in_transaction(
-        &self,
-        transaction: &mut postgres::Transaction  ,
-    ) -> Result<Vec<Self::Row>, postgres::error::Error> {
-        transaction
-            .query("query", &[])
-            .and_then(|rows| rows.iter().map(Self::Row::try_from_row).collect())
-    }
-}
+        connection: &mut impl postgres::GenericClient,
+    ) -> Result<Vec<Self::Row>, postgres::error::Error>;
 
-#[cfg(test)]
-mod tests {}
+    fn query_opt(
+        &self,
+        connection: &mut impl postgres::GenericClient,
+    ) -> Result<Option<Self::Row>, postgres::error::Error>;
+
+    fn query_one(
+        &self,
+        connection: &mut impl postgres::GenericClient,
+    ) -> Result<Self::Row, postgres::error::Error>;
+}
