@@ -8,5 +8,4 @@ edition = "2021"
 [dependencies]
 postgresql-named-parameters-derive = { path = "../postgresql-named-parameters-derive" }
 postgres-from-row = "0.5.2"
-tokio-postgres = "0.7.10"
 postgres = "0.19.7"

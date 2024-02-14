@@ -10,4 +10,3 @@ postgresql-named-parameters = { path = "../postgresql-named-parameters" }
 postgres-from-row = "0.5.2"
 postgres-types = { version = "0.2.6", features = ["derive"] }
 postgres = "0.19.7"
-macrotest = "1.0.9"

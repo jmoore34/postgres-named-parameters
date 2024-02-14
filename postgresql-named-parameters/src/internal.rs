@@ -5,7 +5,7 @@
 // Cargo.toml dependencies.
 pub mod wrapper_for_derive_macro {
     use postgres_from_row::FromRow;
-    pub fn try_from_row<T: FromRow>(row: &postgres::Row) -> Result<T, tokio_postgres::Error> {
+    pub fn try_from_row<T: FromRow>(row: &postgres::Row) -> Result<T, postgres::Error> {
         T::try_from_row(row)
     }
 }
