@@ -4,7 +4,7 @@ pub use postgres;
 pub use postgresql_named_parameters_derive::*;
 
 pub trait Statement {
-    fn execute_statement(&self, connection: &mut postgres::Client) -> Result<u64, postgres::error::Error>;
+    fn execute_statement(&self, connection: &mut impl postgres::GenericClient) -> Result<u64, postgres::error::Error>;
 }
 
 pub trait Query {

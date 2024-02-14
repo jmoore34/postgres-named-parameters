@@ -27,32 +27,50 @@ CREATE TABLE IF NOT EXISTS Person (
   hobby TEXT,
   alive BOOLEAN NOT NULL
 )")]
-struct SetupPerson;
+struct CreatePersonTable;
 
 #[derive(Statement)]
 #[statement(sql = "DELETE FROM Person")]
-struct TruncatePerson;
+struct TruncatePersonTable;
 
-#[derive(Statement)]
-#[statement(sql = "
-    INSERT INTO Person (first_name, last_name, hobby, alive)
-    SELECT *
-    FROM UNNEST(@first_names::TEXT[], @last_names::TEXT[], @hobbies::TEXT[], @alive_statuses::BOOL[])
-")]
-struct InsertPeople {
-    first_names: Vec<String>,
-    last_names: Vec<String>,
-    hobbies: Vec<Option<String>>,
-    alive_statuses: Vec<bool>,
+fn bulk_insert_people(
+    db: &mut impl postgres::GenericClient,
+    people: Vec<Person>,
+) -> Result<u64, postgres::Error> {
+    // There are various approaches for bulk queries like this one. Many ORMs
+    // take the approach of constructing SQL at runtime. This library is
+    // centered around SQL that is finalized at compile time, so we use a
+    // different approach: we can split a vector of structs (Vec<Person>) into
+    // one vector per column, and then reassemble them in Postgres.
+    #[derive(Statement)]
+    #[statement(sql = "
+        INSERT INTO Person (first_name, last_name, hobby, alive)
+        SELECT *
+        FROM UNNEST(@first_names::TEXT[], @last_names::TEXT[], @hobbies::TEXT[], @alive_statuses::BOOL[])
+    ")]
+    struct InsertPeople {
+        first_names: Vec<String>,
+        last_names: Vec<String>,
+        hobbies: Vec<Option<String>>,
+        alive_statuses: Vec<bool>,
+    }
+
+    InsertPeople {
+        first_names: people.iter().map(|p| p.first_name.clone()).collect(),
+        last_names: people.iter().map(|p| p.last_name.clone()).collect(),
+        hobbies: people.iter().map(|p| p.hobby.clone()).collect(),
+        alive_statuses: people.iter().map(|p| p.alive).collect(),
+    }
+    .execute_statement(db)
 }
 
 fn main() {
     let connection_string = std::env::var("POSTGRES_CONNECTION_STRING")
         .unwrap_or("host=localhost user=postgres".to_owned());
-    let mut client = postgres::Client::connect(&connection_string, postgres::NoTls).unwrap();
+    let mut db = postgres::Client::connect(&connection_string, postgres::NoTls).unwrap();
 
-    SetupPerson {}.execute_statement(&mut client).unwrap();
-    TruncatePerson {}.execute_statement(&mut client).unwrap();
+    CreatePersonTable {}.execute_statement(&mut db).unwrap();
+    TruncatePersonTable {}.execute_statement(&mut db).unwrap();
 
     let people_to_insert = vec![
         Person {
@@ -69,26 +87,13 @@ fn main() {
         },
     ];
 
-    InsertPeople {
-        first_names: people_to_insert
-            .iter()
-            .map(|p| p.first_name.clone())
-            .collect(),
-        last_names: people_to_insert
-            .iter()
-            .map(|p| p.last_name.clone())
-            .collect(),
-        hobbies: people_to_insert.iter().map(|p| p.hobby.clone()).collect(),
-        alive_statuses: people_to_insert.iter().map(|p| p.alive).collect(),
-    }
-    .execute_statement(&mut client)
-    .unwrap();
+    bulk_insert_people(&mut db, people_to_insert).unwrap();
 
     let people = GetPeople {
         alive: true,
         name: "John".into(),
     }
-    .query_all(&mut client)
+    .query_all(&mut db)
     .unwrap();
 
     println!("Found: {:?}", people);
