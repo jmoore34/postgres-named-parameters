@@ -13,6 +13,6 @@ categories.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-postgres-named-parameters-derive = { path = "../postgres-named-parameters-derive" }
+postgres-named-parameters-derive = { version = "=0.1.0", path = "../postgres-named-parameters-derive" }
 postgres-from-row = "0.5.2"
 postgres = "0.19.7"
