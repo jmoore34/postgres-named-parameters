@@ -7,9 +7,9 @@ struct InsertPeople {
 }
 #[automatically_derived]
 impl postgresql_named_parameters::Statement for InsertPeople {
-    fn execute(
+    fn execute_statement(
         &self,
-        connection: &mut postgresql_named_parameters::postgres::Client,
+        connection: &mut impl postgresql_named_parameters::postgres::GenericClient,
     ) -> Result<u64, postgresql_named_parameters::postgres::error::Error> {
         connection.execute("INSERT INTO Person VALUES $1", &[&self.people])
     }

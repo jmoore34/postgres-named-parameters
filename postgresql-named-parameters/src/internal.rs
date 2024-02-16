@@ -1,3 +1,4 @@
+#![doc(hidden)]
 // Export a wrapper around postgres_from_row::FromRow so we can reference it in
 // our #[derive(Query)] procedural macro. We do not re-export the
 // postgres_from_row crate because its #[derive(FromRow)] procedural macro does

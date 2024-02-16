@@ -1,7 +1,9 @@
-use postgres_from_row::{tokio_postgres::types::ToSql, FromRow};
+use postgres_from_row::FromRow;
 use postgresql_named_parameters::{Query, Statement};
 
-#[derive(FromRow, ToSql, Debug)]
+// Use the postgres-from-row crate to deserialize the rows returned
+// from queries into a struct
+#[derive(FromRow, Debug)]
 struct Person {
     first_name: String,
     last_name: String,
@@ -9,6 +11,10 @@ struct Person {
     alive: bool,
 }
 
+// Use a struct to define a query. The #[derive(Query)] will implement
+// query functions that handle passing in the parameters, and the named
+// parameters are converted to numbered parameters ($1, $2,...) at compile
+// time.
 #[derive(Query)]
 #[query(
     sql = "SELECT * FROM Person WHERE (first_name = @name OR last_name = @name) AND alive = @alive",
@@ -19,6 +25,10 @@ struct GetPeople<'a> {
     name: &'a str,
 }
 
+// Statements are like Queries except they do not return rows
+// but rather an integer counting the number of rows affected.
+// Hence, there is no `row` parameter to the `statement` attribute
+// (unlike in the `query` attribute).
 #[derive(Statement)]
 #[statement(sql = "
 CREATE TABLE IF NOT EXISTS Person (
@@ -64,13 +74,13 @@ fn bulk_insert_people(
     .execute_statement(db)
 }
 
-fn main() {
+fn main() -> Result<(), postgres::Error> {
     let connection_string = std::env::var("POSTGRES_CONNECTION_STRING")
         .unwrap_or("host=localhost user=postgres".to_owned());
-    let mut db = postgres::Client::connect(&connection_string, postgres::NoTls).unwrap();
+    let mut db = postgres::Client::connect(&connection_string, postgres::NoTls)?;
 
-    CreatePersonTable {}.execute_statement(&mut db).unwrap();
-    TruncatePersonTable {}.execute_statement(&mut db).unwrap();
+    CreatePersonTable {}.execute_statement(&mut db)?;
+    TruncatePersonTable {}.execute_statement(&mut db)?;
 
     let people_to_insert = vec![
         Person {
@@ -87,14 +97,21 @@ fn main() {
         },
     ];
 
-    bulk_insert_people(&mut db, people_to_insert).unwrap();
+    bulk_insert_people(&mut db, people_to_insert)?;
 
     let people = GetPeople {
         alive: true,
-        name: "John".into(),
+        name: "John",
     }
-    .query_all(&mut db)
-    .unwrap();
+    .query_all(&mut db)?;
+    // This roughly desugars to:
+    // let people: Vec<Person> = db.query(
+    //     "SELECT * FROM Person WHERE (first_name = $2 OR last_name = $2) AND alive = $1",
+    //     &[&true, &"John"],
+    // )?.iter().map(Person::try_from_row).collect::<Result<Vec<Person>,postgres::Error>>()?;
+
 
     println!("Found: {:?}", people);
+
+    Ok(())
 }
