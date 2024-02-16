@@ -1,11 +1,11 @@
 [package]
-name = "postgresql-named-parameters"
+name = "postgres-named-parameters"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-postgresql-named-parameters-derive = { path = "../postgresql-named-parameters-derive" }
+postgres-named-parameters-derive = { path = "../postgres-named-parameters-derive" }
 postgres-from-row = "0.5.2"
 postgres = "0.19.7"

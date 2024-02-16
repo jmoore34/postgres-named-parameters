@@ -1,5 +1,5 @@
 use postgres_from_row::FromRow;
-use postgresql_named_parameters::{Query, Statement};
+use postgres_named_parameters::{Query, Statement};
 
 // Use the postgres-from-row crate to deserialize the rows returned
 // from queries into a struct
@@ -109,7 +109,6 @@ fn main() -> Result<(), postgres::Error> {
     //     "SELECT * FROM Person WHERE (first_name = $2 OR last_name = $2) AND alive = $1",
     //     &[&true, &"John"],
     // )?.iter().map(Person::try_from_row).collect::<Result<Vec<Person>,postgres::Error>>()?;
-
 
     println!("Found: {:?}", people);
 

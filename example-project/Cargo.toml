@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-postgresql-named-parameters = { path = "../postgresql-named-parameters" }
+postgres-named-parameters = { path = "../postgres-named-parameters" }
 postgres-from-row = "0.5.2"
 postgres-types = { version = "0.2.6", features = ["derive"] }
 postgres = "0.19.7"

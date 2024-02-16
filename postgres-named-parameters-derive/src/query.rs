@@ -36,28 +36,28 @@ pub fn derive_query_impl(ast: DeriveInput) -> syn::Result<proc_macro2::TokenStre
 
     let output = quote! {
         #[automatically_derived]
-        impl #generics postgresql_named_parameters::Query for #ident #generics #where_clause {
+        impl #generics postgres_named_parameters::Query for #ident #generics #where_clause {
             type Row = #row_type;
             fn query_all(
                 &self,
-                connection: &mut impl postgresql_named_parameters::postgres::GenericClient,
-            ) -> Result<Vec<Self::Row>, postgresql_named_parameters::postgres::error::Error> {
+                connection: &mut impl postgres_named_parameters::postgres::GenericClient,
+            ) -> Result<Vec<Self::Row>, postgres_named_parameters::postgres::error::Error> {
                 let rows = connection.query(#transformed_sql, #parameter_list)?;
                 rows
                     .iter()
-                    .map(postgresql_named_parameters::internal::wrapper_for_derive_macro::try_from_row::<Self::Row>)
+                    .map(postgres_named_parameters::internal::wrapper_for_derive_macro::try_from_row::<Self::Row>)
                     .collect()
             }
 
             fn query_opt(
                 &self,
-                connection: &mut impl postgresql_named_parameters::postgres::GenericClient,
-            ) -> Result<Option<Self::Row>, postgresql_named_parameters::postgres::error::Error> {
+                connection: &mut impl postgres_named_parameters::postgres::GenericClient,
+            ) -> Result<Option<Self::Row>, postgres_named_parameters::postgres::error::Error> {
                 let maybe_row = connection.query_opt(#transformed_sql, #parameter_list)?;
                 match maybe_row {
                     None => Ok(None),
                     Some(row) => {
-                        let decoded_row = postgresql_named_parameters::internal::wrapper_for_derive_macro::try_from_row::<Self::Row>(&row)?;
+                        let decoded_row = postgres_named_parameters::internal::wrapper_for_derive_macro::try_from_row::<Self::Row>(&row)?;
                         Ok(Some(decoded_row))
                     }
                 }
@@ -65,10 +65,10 @@ pub fn derive_query_impl(ast: DeriveInput) -> syn::Result<proc_macro2::TokenStre
 
             fn query_one(
                 &self,
-                connection: &mut impl postgresql_named_parameters::postgres::GenericClient,
-            ) -> Result<Self::Row, postgresql_named_parameters::postgres::error::Error> {
+                connection: &mut impl postgres_named_parameters::postgres::GenericClient,
+            ) -> Result<Self::Row, postgres_named_parameters::postgres::error::Error> {
                 let row = connection.query_one(#transformed_sql, #parameter_list)?;
-                postgresql_named_parameters::internal::wrapper_for_derive_macro::try_from_row::<Self::Row>(&row)
+                postgres_named_parameters::internal::wrapper_for_derive_macro::try_from_row::<Self::Row>(&row)
             }
         }
     };

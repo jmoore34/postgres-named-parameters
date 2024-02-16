@@ -1,7 +1,7 @@
 [workspace]
 members = [
-    "postgresql-named-parameters",
-    "postgresql-named-parameters-derive",
+    "postgres-named-parameters",
+    "postgres-named-parameters-derive",
     "example-project",
 ]
 resolver = "2"

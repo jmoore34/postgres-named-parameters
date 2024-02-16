@@ -34,8 +34,8 @@ pub fn derive_statement_impl(ast: DeriveInput) -> syn::Result<proc_macro2::Token
 
     let output = quote! {
         #[automatically_derived]
-        impl #generics postgresql_named_parameters::Statement for #ident #generics #where_clause {
-            fn execute_statement(&self, connection: &mut impl postgresql_named_parameters::postgres::GenericClient) -> Result<u64, postgresql_named_parameters::postgres::error::Error> {
+        impl #generics postgres_named_parameters::Statement for #ident #generics #where_clause {
+            fn execute_statement(&self, connection: &mut impl postgres_named_parameters::postgres::GenericClient) -> Result<u64, postgres_named_parameters::postgres::error::Error> {
                 connection.execute(#transformed_sql, #parameter_list)
             }
         }

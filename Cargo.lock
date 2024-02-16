@@ -225,8 +225,8 @@ version = "0.1.0"
 dependencies = [
  "postgres",
  "postgres-from-row",
+ "postgres-named-parameters",
  "postgres-types",
- "postgresql-named-parameters",
 ]
 
 [[package]]
@@ -595,6 +595,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "postgres-named-parameters"
+version = "0.1.0"
+dependencies = [
+ "postgres",
+ "postgres-from-row",
+ "postgres-named-parameters-derive",
+]
+
+[[package]]
+name = "postgres-named-parameters-derive"
+version = "0.1.0"
+dependencies = [
+ "attribute-derive",
+ "macrotest",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
+]
+
+[[package]]
 name = "postgres-protocol"
 version = "0.6.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -622,26 +642,6 @@ dependencies = [
  "fallible-iterator",
  "postgres-derive",
  "postgres-protocol",
-]
-
-[[package]]
-name = "postgresql-named-parameters"
-version = "0.1.0"
-dependencies = [
- "postgres",
- "postgres-from-row",
- "postgresql-named-parameters-derive",
-]
-
-[[package]]
-name = "postgresql-named-parameters-derive"
-version = "0.1.0"
-dependencies = [
- "attribute-derive",
- "macrotest",
- "proc-macro2",
- "quote",
- "syn 2.0.48",
 ]
 
 [[package]]

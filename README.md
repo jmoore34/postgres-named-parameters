@@ -1,6 +1,6 @@
-# postgresql-named-parameters
+# postgres-named-parameters
 
-`postgresql-named-parameters` is a lightweight wrapper around the `postgres`
+`postgres-named-parameters` is a lightweight wrapper around the `postgres`
 crate which provides the ergonomics of named parameters using numbered
 parameters under the hood.
 
@@ -8,7 +8,7 @@ parameters under the hood.
 
 ```rust,no_run
 use postgres_from_row::FromRow;
-use postgresql_named_parameters::Query;
+use postgres_named_parameters::Query;
 
 // Use the postgres-from-row crate to deserialize the rows returned
 // from queries into a struct
@@ -76,6 +76,6 @@ This crate was inspired by the following libraries:
   and
   [solidsnack/rust-postgres-named-parameters](https://github.com/solidsnack/rust-postgres-named-parameters)
   were used as reference when creating the SQL parser
-* [3noch/postgresql-simple-interpolate](https://github.com/3noch/postgresql-simple-interpolate)
+* [3noch/postgres-simple-interpolate](https://github.com/3noch/postgres-simple-interpolate)
   is the Haskell library that motivated creating an ergonomic way of dealing
   with SQL parameters in Rust
