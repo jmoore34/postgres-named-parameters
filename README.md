@@ -83,7 +83,7 @@ project folder in the [GitHub repository](https://github.com/jmoore34/postgres-n
 * Supports transactions
 * SQL transformation to numbered parameters happens at compile time
 * Mis-typing a named parameter (e.g. `@naame` instead of `@name`) produces a
-  compiler error
+  compile-time error
 
 
 # Attribution & Related Libraries
@@ -96,6 +96,6 @@ This crate was inspired by the following libraries:
   and
   [solidsnack/rust-postgres-named-parameters](https://github.com/solidsnack/rust-postgres-named-parameters)
   were used as reference when creating the SQL parser
-* [3noch/postgres-simple-interpolate](https://github.com/3noch/postgres-simple-interpolate)
+* [3noch/postgres-simple-interpolate](https://github.com/3noch/postgresql-simple-interpolate)
   is the Haskell library that motivated creating an ergonomic way of dealing
   with SQL parameters in Rust

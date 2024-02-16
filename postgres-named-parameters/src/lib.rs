@@ -8,7 +8,7 @@ pub use postgres_named_parameters_derive::Query;
 /// See the [Statement] docs for details.
 pub use postgres_named_parameters_derive::Statement;
 
-/// A Statement is a SQL statement that, unlike a [Query], does not return rows.
+/// A `Statement` is a SQL statement that, unlike a [Query], does not return rows.
 /// Instead, it returns the number of rows that have been affected by the
 /// statement.
 ///
@@ -18,6 +18,7 @@ pub use postgres_named_parameters_derive::Statement;
 /// #[derive(Statement)]
 /// #[statement(sql = "DELETE FROM Person WHERE id = @id")]
 /// struct DeletePerson {
+///     // Define the statement's parameters
 ///     id: i32
 /// }
 /// ```
@@ -70,8 +71,7 @@ pub trait Statement {
     ) -> Result<u64, postgres::error::Error>;
 }
 
-/// A Query is a SQL query that, unlike a [Statement], returns
-/// rows from the database.
+/// A `Query` is a SQL query that returns rows from the database.
 ///
 /// # Example
 /// `Query` can be derived like so:
@@ -95,16 +95,17 @@ pub trait Statement {
 ///     row = Person
 /// )]
 /// struct GetPeople<'a> {
-///     // Define the query parameters
+///     // Define the query's parameters
 ///     alive: bool,
 ///     name: &'a str,
 /// }
 /// ```
 /// Note that the struct you specify for `row` must implement
 /// [FromRow](postgres_from_row::FromRow). You can do this by using
-/// `#[derive(FromRow)`, which you can get by adding
+/// `#[derive(FromRow)]`, which you can get by adding
 /// [postgres-from-row](https://crates.io/crates/postgres-from-row) to your
-/// `Cargo.toml`.
+/// `Cargo.toml`. (Note: as of time of writing, [postgres-from-row](https://crates.io/crates/postgres-from-row) does not yet
+/// support [borrowed fields](https://github.com/remkop22/postgres-from-row/issues/12).)
 /// ```no_run
 /// #[derive(FromRow, Debug)]
 /// struct Person {
@@ -154,7 +155,7 @@ pub trait Statement {
 /// }
 /// ```
 /// At compile time, the SQL is transformed to use numbered parameters. For
-/// example, the above query will invoke:
+/// example, the above query will roughly desugar to:
 /// ```no_run
 /// # fn main() -> Result<(), postgres::Error> {
 /// #     let connection_string = std::env::var("POSTGRES_CONNECTION_STRING")
@@ -179,21 +180,23 @@ pub trait Statement {
 ///
 /// # Notes
 /// * In order to use `#[derive(Query)`, you must also provide the helper
-///   attribute `#[statement(sql = "...", row = SomeStruct)`
+///   attribute `#[statement(sql = "...", row = ...)`
 ///     * Both the `sql` and `row` parameters are required
 ///     * The `sql` parameter must be a string literal
 ///     * The `row` parameter must implement
 ///       [FromRow](postgres_from_row::FromRow) (see above).
 /// * At compile time, the derive macro will check that the parameter names you
 ///   used in your query match the field names defined in the struct. A mismatch
-///   (e.g. using "@naame" instead of "@name" when the field name is `id`) will
+///   (e.g. using "@naame" instead of "@name" when the field name is `name`) will
 ///   cause a compiler error.
 /// * If you want to include a single literal `@` in your SQL, you must escape
 ///   it by doubling it (`@@`)
 pub trait Query {
     /// The type that each individual row returned from the query should decode
-    /// to. Note that the struct you specify for `row` must implement
-    /// [FromRow](postgres_from_row::FromRow). You can do this by using
+    /// to. You specify this type in the derive macro using the `row` parameter.
+    /// Note that this type must implement
+    /// [FromRow](postgres_from_row::FromRow) on the struct you intend to decode
+    /// each row to. You can do this by using
     /// `#[derive(FromRow)`, which you can get by adding
     /// [postgres-from-row](https://crates.io/crates/postgres-from-row) to your
     /// `Cargo.toml`.
@@ -208,9 +211,10 @@ pub trait Query {
         connection: &mut impl postgres::GenericClient,
     ) -> Result<Vec<Self::Row>, postgres::error::Error>;
 
-    /// Run the query, expecting exactly one or zero rows. Return `None` if
-    /// there are no rows, and return an error if there are more than one rows.
-    /// See also: `query_one`.
+    /// Run the query, expecting exactly one or zero rows. Return `Ok(None)` if
+    /// there are no rows, and return an `Err` if there is more than one row.
+    /// See also: [query_one](Query::query_one).
+    ///
     /// For the sole argument you can pass either a database connection (i.e.
     /// [postgres::Client]) or a transaction (i.e. [postgres::Transaction]).
     fn query_opt(
@@ -218,8 +222,8 @@ pub trait Query {
         connection: &mut impl postgres::GenericClient,
     ) -> Result<Option<Self::Row>, postgres::error::Error>;
 
-    /// Run the query, expecting exactly one row. Return an error if zero or
-    /// more than one row are returned. See also: `query_opt`.
+    /// Run the query, expecting exactly one row. Return an `Err` if no rows or
+    /// more than one row are returned. See also: [query_opt](Query::query_opt).
     ///
     /// For the sole argument you can pass either a database connection (i.e.
     /// [postgres::Client]) or a transaction (i.e. [postgres::Transaction]).
