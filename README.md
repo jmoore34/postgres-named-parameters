@@ -11,8 +11,8 @@ parameters at compile time.
 use postgres_from_row::FromRow;
 use postgres_named_parameters::Query;
 
-// Use the postgres-from-row crate to deserialize the rows returned
-// from queries into a struct
+// Use the postgres-from-row crate to decode each row returned
+// from a query into a struct.
 #[derive(FromRow, Debug)]
 struct Person {
     first_name: String,
@@ -47,6 +47,7 @@ fn main() -> Result<(), postgres::Error> {
         .unwrap_or("host=localhost user=postgres".to_owned());
     let mut db = postgres::Client::connect(&connection_string, postgres::NoTls)?;
 
+    // Execute the query
     let people: Vec<Person> = GetPeople {
         alive: true,
         name: "John",

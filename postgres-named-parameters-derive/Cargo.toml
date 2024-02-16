@@ -1,5 +1,6 @@
 [package]
 name = "postgres-named-parameters-derive"
+description = "Derive macros used internally by `postgres-named-parameters`. You should not use this crate directly; instead, use `postgres-named-parameters`."
 version = "0.1.0"
 authors.workspace = true
 edition.workspace = true

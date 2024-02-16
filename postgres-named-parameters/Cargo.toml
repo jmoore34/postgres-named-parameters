@@ -1,6 +1,6 @@
 [package]
 name = "postgres-named-parameters"
-decsription = "A lightweight macro wrapper around the `postgres` crate which gives you the ergonomics of named parameters in your raw SQL queries"
+description = "A lightweight macro wrapper around the `postgres` crate which gives you the ergonomics of named parameters in your raw SQL queries"
 version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
@@ -13,6 +13,6 @@ categories.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-postgres-named-parameters-derive = { version = "=0.1.0", path = "../postgres-named-parameters-derive" }
+postgres-named-parameters-derive = { version = "0.1.0", path = "../postgres-named-parameters-derive" }
 postgres-from-row = "0.5.2"
 postgres = "0.19.7"

@@ -3,7 +3,10 @@
 pub mod internal;
 
 pub use postgres;
-pub use postgres_named_parameters_derive::*;
+/// See the [Query] docs for details.
+pub use postgres_named_parameters_derive::Query;
+/// See the [Statement] docs for details.
+pub use postgres_named_parameters_derive::Statement;
 
 /// A Statement is a SQL statement that, unlike a [Query], does not return rows.
 /// Instead, it returns the number of rows that have been affected by the
