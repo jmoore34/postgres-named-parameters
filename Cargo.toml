@@ -5,3 +5,12 @@ members = [
     "example-project",
 ]
 resolver = "2"
+
+[workspace.package]
+authors = ["Jonathan Moore <jonm@duck.com>"]
+edition = "2021"
+repository = "https://github.com/jmoore34/postgres-named-parameters"
+homepage = "https://github.com/jmoore34/postgres-named-parameters"
+license = "MIT"
+keywords = ["macro", "postgres", "sql", "parameters", "query"]
+categories = ["database", "template-engine"]

@@ -1,8 +1,9 @@
 # postgres-named-parameters
 
-`postgres-named-parameters` is a lightweight wrapper around the `postgres`
-crate which provides the ergonomics of named parameters using numbered
-parameters under the hood.
+`postgres-named-parameters` is a lightweight macro wrapper around the `postgres`
+crate which gives you the ergonomics of named parameters in your raw SQL
+queries. Under the hood, your named parameters are transformed into numbered
+parameters at compile time.
 
 ## Usage example
 
@@ -26,10 +27,17 @@ struct Person {
 // time.
 #[derive(Query)]
 #[query(
-    sql = "SELECT * FROM Person WHERE (first_name = @name OR last_name = @name) AND alive = @alive",
+    // Write the query using named parameters
+    sql = "
+      SELECT *
+      FROM Person
+      WHERE (first_name = @name OR last_name = @name)
+      AND alive = @alive",
+    // Specify what type each row returned from the query should decode to
     row = Person
 )]
 struct GetPeople<'a> {
+    // Define the query's parameters
     alive: bool,
     name: &'a str,
 }
@@ -46,10 +54,18 @@ fn main() -> Result<(), postgres::Error> {
     .query_all(&mut db)?;
 
     // This roughly desugars to:
+    //
     // let people: Vec<Person> = db.query(
-    //     "SELECT * FROM Person WHERE (first_name = $2 OR last_name = $2) AND alive = $1",
+    //     "SELECT *
+    //      FROM Person
+    //      WHERE (first_name = $2 OR last_name = $2)
+    //      AND alive = $1",
     //     &[&true, &"John"],
-    // )?.iter().map(Person::try_from_row).collect::<Result<Vec<Person>,postgres::Error>>()?;
+    // )?
+    // .iter()
+    // .map(Person::try_from_row)
+    // .collect::<Result<Vec<Person>,postgres::Error>>()?;
+    //
     // Note that the #[derive(Query)] takes care of changing the SQL to use
     // numbered parameters (i.e. $1, $2) at compile time.
 
@@ -58,6 +74,9 @@ fn main() -> Result<(), postgres::Error> {
     Ok(())
 }
 ```
+For a more thorough example (including bulk queries), see the example
+project folder in the [GitHub repository](https://github.com/jmoore34/postgres-named-parameters).
+
 # Features
 
 * Supports transactions

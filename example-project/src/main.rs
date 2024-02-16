@@ -17,7 +17,11 @@ struct Person {
 // time.
 #[derive(Query)]
 #[query(
-    sql = "SELECT * FROM Person WHERE (first_name = @name OR last_name = @name) AND alive = @alive",
+    sql = "
+        SELECT *
+        FROM Person
+        WHERE (first_name = @name OR last_name = @name)
+        AND alive = @alive;",
     row = Person
 )]
 struct GetPeople<'a> {
@@ -42,6 +46,12 @@ struct CreatePersonTable;
 #[derive(Statement)]
 #[statement(sql = "DELETE FROM Person")]
 struct TruncatePersonTable;
+
+#[derive(Statement)]
+#[statement(sql = "DELETE FROM Person WHERE id = @id")]
+struct DeletePerson {
+    id: i32
+}
 
 fn bulk_insert_people(
     db: &mut impl postgres::GenericClient,
@@ -78,9 +88,13 @@ fn main() -> Result<(), postgres::Error> {
     let connection_string = std::env::var("POSTGRES_CONNECTION_STRING")
         .unwrap_or("host=localhost user=postgres".to_owned());
     let mut db = postgres::Client::connect(&connection_string, postgres::NoTls)?;
-
+    DeletePerson {
+        id: 123
+    }.execute_statement(&mut db)?;
     CreatePersonTable {}.execute_statement(&mut db)?;
     TruncatePersonTable {}.execute_statement(&mut db)?;
+
+
 
     let people_to_insert = vec![
         Person {
